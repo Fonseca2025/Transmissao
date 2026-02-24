@@ -10,28 +10,34 @@ CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
 
 def enviar_telegram(mensagem):
+    # O parse_mode='Markdown' permite usar negrito com asteriscos
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     payload = {
         "chat_id": CHAT_ID,
-        "text": mensagem
+        "text": mensagem,
+        "parse_mode": "Markdown" 
     }
     response = requests.post(url, json=payload)
     
-    # AQUI ESTÁ A MUDANÇA: Verifica se deu certo
     if response.status_code == 200:
         print("✅ SUCESSO: Mensagem entregue no Telegram!")
     else:
         print(f"❌ ERRO GRAVE: O Telegram rejeitou a mensagem.")
         print(f"Código do erro: {response.status_code}")
-        print(f"Explicação do Telegram: {response.text}")
-        # Força o GitHub a mostrar erro vermelho
+        print(f"Explicação: {response.text}")
         exit(1)
 
 def main():
+    # Define o fuso horário para garantir a data certa no Brasil
     fuso_brasil = pytz.timezone('America/Sao_Paulo')
-    hoje = datetime.now(fuso_brasil).strftime('%Y-%m-%d')
     
-    print(f"📅 Data de hoje buscada: {hoje}")
+    # Data para buscar no JSON (formato americano: 2026-02-24)
+    data_americana = datetime.now(fuso_brasil).strftime('%Y-%m-%d')
+    
+    # Data para mostrar na mensagem (formato brasileiro: 24/02/2026)
+    data_br = datetime.now(fuso_brasil).strftime('%d/%m/%Y')
+    
+    print(f"📅 Data de hoje buscada: {data_americana}")
 
     try:
         with open(ARQUIVO_ESCALA, 'r', encoding='utf-8') as f:
@@ -40,14 +46,20 @@ def main():
         print(f"Erro ao ler o arquivo JSON: {e}")
         exit(1)
     
-    agente = dados.get(hoje)
+    # Busca o agente do dia no arquivo
+    agente = dados.get(data_americana)
     
     if agente:
-        print(f"Escala encontrada: {agente}")
-        msg = f"🔔 *Escala da Missa - Hoje ({hoje})*\n\n{agente}"
+        # Cria a mensagem formatada
+        msg = (
+            f"🌞 *Bom dia! Paz e Bem.*\n\n"
+            f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
+            f"{agente}\n\n"
+            f"Deus abençoe sua missão! 🙏"
+        )
         enviar_telegram(msg)
     else:
-        print(f"Nenhuma escala encontrada para {hoje}.")
+        print(f"Nenhuma escala encontrada para {data_americana}.")
 
 if __name__ == "__main__":
     main()
