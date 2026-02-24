@@ -10,30 +10,34 @@ TOKEN = os.environ['TELEGRAM_TOKEN']
 CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
 
-# Agenda telefônica (Mapeia NOME -> WHATSAPP)
-# Dica: As chaves estão em minúsculo para facilitar a busca
+# Agenda: Nome (minúsculo) -> Telefone
 AGENDA = {
     "albert": "5538998557578",
     "enzo": "5538984032914",
     "marcia": "5538988243015", "márcia": "5538988243015",
     "lucas": "5538992556263",
-    "paulo": "5538998857945", # Vai achar "Paulo Lopes"
+    "paulo": "5538998857945", 
     "duda": "5538988047091",
     "wellington": "5538991289962",
     "júlia": "5538992627352", "julia": "5538992627352",
     "ávilo": "5538991126733", "avilo": "5538991126733",
-    "josé": "5538998920057", "jose": "5538998920057", # Vai achar "José Bhento"
+    "josé": "5538998920057", "jose": "5538998920057",
     "julimar": "5538999493437", "júlimar": "5538999493437",
     "evelyn": "5538991183066",
     "alice": "5538988294593",
     "gabi": "5538988228118"
 }
 
-def enviar_telegram(mensagem_principal, botoes_links):
+def enviar_telegram(mensagem_resumo, botoes_links):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     
-    # Monta o texto final com os links de ação
-    texto_final = f"{mensagem_principal}\n\n👇 *Links Rápidos para Envio:*\n{botoes_links}"
+    # Monta o texto que chega NO SEU TELEGRAM
+    texto_final = (
+        f"📅 *Resumo da Escala de Hoje:*\n"
+        f"{mensagem_resumo}\n\n"
+        f"👇 *Links Personalizados para Envio:*\n"
+        f"{botoes_links}"
+    )
 
     payload = {
         "chat_id": CHAT_ID,
@@ -56,7 +60,6 @@ def main():
     
     print(f"📅 Processando dia: {data_americana}")
 
-    # 1. Carregar Escala
     try:
         with open(ARQUIVO_ESCALA, 'r', encoding='utf-8') as f:
             dados = json.load(f)
@@ -67,41 +70,49 @@ def main():
     texto_escala = dados.get(data_americana)
     
     if texto_escala:
-        # 2. Preparar a mensagem base (bonitinha)
-        msg_base = (
-            f"🌞 *Bom dia! Paz e Bem.*\n\n"
-            f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
-            f"{texto_escala}\n\n"
-            f"Deus abençoe sua missão! 🙏"
-        )
-
-        # 3. Detectar quem está na escala e criar links
-        texto_escala_lower = texto_escala.lower() # Converte tudo pra minusculo pra buscar
+        # Prepara busca
+        texto_escala_lower = texto_escala.lower()
         links_gerados = ""
-        nomes_encontrados = []
+        telefones_processados = []
 
-        # Varre a agenda para ver se o nome da pessoa está no texto da escala
+        # 1. Procura cada pessoa da agenda na escala de hoje
         for nome_chave, telefone in AGENDA.items():
             if nome_chave in texto_escala_lower:
-                # Evita duplicar nomes (ex: Márcia e marcia)
-                if telefone not in nomes_encontrados:
-                    nomes_encontrados.append(telefone)
+                if telefone not in telefones_processados:
+                    telefones_processados.append(telefone)
                     
-                    # Cria o link do WhatsApp
-                    texto_zap = urllib.parse.quote(msg_base.replace('*', ''))
-                    link = f"https://wa.me/{telefone}?text={texto_zap}"
+                    # Formata o nome (ex: de 'júlia' para 'Júlia')
+                    nome_bonito = nome_chave.capitalize()
                     
-                    # Adiciona na lista de botões (ex: 📲 Enviar para Júlia)
-                    nome_formatado = nome_chave.capitalize()
-                    links_gerados += f"🔗 [Enviar para {nome_formatado}]({link})\n"
+                    # 2. CRIA A MENSAGEM PERSONALIZADA (Aqui está a mágica!)
+                    # Essa é a mensagem que vai aparecer no WhatsApp
+                    msg_whatsapp = (
+                        f"🌞 *Bom dia {nome_bonito}! Paz e Bem.*\n\n"
+                        f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
+                        f"{texto_escala}\n\n"
+                        f"Deus abençoe sua missão! 🙏"
+                    )
+                    
+                    # 3. Gera o link
+                    # Removemos asteriscos (*) para o WhatsApp não ficar estranho se não quiser negrito
+                    texto_zap_codificado = urllib.parse.quote(msg_whatsapp.replace('*', ''))
+                    link = f"https://wa.me/{telefone}?text={texto_zap_codificado}"
+                    
+                    links_gerados += f"🔗 [Enviar para {nome_bonito}]({link})\n"
 
-        # Se não achou ninguém da lista (ex: nome escrito errado), cria um link genérico
+        # Caso não ache ninguém (ex: erro de digitação no nome), cria um genérico
         if not links_gerados:
-            texto_zap = urllib.parse.quote(msg_base.replace('*', ''))
-            links_gerados = f"🔗 [Enviar para Contato (Selecionar)]({f'https://wa.me/?text={texto_zap}'})"
+            msg_generica = (
+                f"🌞 *Bom dia! Paz e Bem.*\n\n"
+                f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
+                f"{texto_escala}\n\n"
+                f"Deus abençoe sua missão! 🙏"
+            )
+            texto_zap = urllib.parse.quote(msg_generica.replace('*', ''))
+            links_gerados = f"⚠️ [Nenhum nome detectado - Link Genérico]({f'https://wa.me/?text={texto_zap}'})"
 
-        # 4. Enviar tudo
-        enviar_telegram(msg_base, links_gerados)
+        # Envia para o Telegram
+        enviar_telegram(texto_escala, links_gerados)
         
     else:
         print(f"Nenhuma escala para {data_americana}")
