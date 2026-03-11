@@ -2,7 +2,7 @@ import json
 import requests
 import os
 import urllib.parse
-import random # Adicionado para o sorteio
+import random 
 from datetime import datetime, timedelta
 import pytz
 
@@ -10,10 +10,11 @@ import pytz
 TOKEN = os.environ['TELEGRAM_TOKEN']
 CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
-TESTAR_RESUMO_SEMANAL = False # Deixei False para o dia a dia normal
+TESTAR_RESUMO_SEMANAL = True 
 
-# Lista de Saudações e Versículos (O robô vai sortear um por dia)
+# Lista de 20 Saudações e Versículos (Sorteio Diário)
 SAUDACOES_BIBLICAS =[
+    # --- Versículos e Bênçãos Gerais ---
     "Paz e Bem! 'Este é o dia que o Senhor fez para nós, alegremo-nos e nele exultemos.' (Sl 118,24) ✨",
     "Que o Senhor abençoe profundamente o seu dia! 'Tudo posso naquele que me fortalece.' (Fl 4,13) 💪",
     "Paz e Bem! 'O Senhor te abençoe e te guarde.' (Nm 6,24) 🕊️",
@@ -21,7 +22,21 @@ SAUDACOES_BIBLICAS =[
     "Que a alegria do Senhor seja a sua força na missão de hoje! (Ne 8,10) 😊",
     "Paz de Cristo! 'Deem graças ao Senhor, porque ele é bom; o seu amor dura para sempre.' (Sl 107,1) ❤️",
     "Bom trabalho hoje! 'Tudo o que fizerem, façam de todo o coração, como para o Senhor.' (Cl 3,23) 🙌",
-    "Paz e Bem! Que São Judas Tadeu interceda pela sua vida e pela sua missão no dia de hoje! 🟢🔴"
+    "Bom dia na paz do Senhor! 'Alegrem-se na esperança, sejam pacientes na tribulação, perseverem na oração.' (Rm 12,12) ✨",
+    "Paz e Bem! 'O Senhor é o meu pastor; de nada terei falta.' (Sl 23,1). Um lindo dia para você! 🛡️",
+    "Bom dia! 'Vão pelo mundo todo e preguem o evangelho' (Mc 16,15). Deus abençoe nosso serviço! 🌍",
+    
+    # --- Devoção a São Judas Tadeu (Padroeiro e Transmissão) ---
+    "Paz e Bem! Que São Judas Tadeu interceda pela sua vida e pela sua missão no dia de hoje! 🟢🔴",
+    "Bom dia! Que a coragem e a fé do glorioso São Judas Tadeu inspirem nossa transmissão de hoje. 🙏",
+    "A graça e a paz de Deus estejam com você! Que São Judas ilumine seu caminho e seu serviço no altar e nas câmeras. ✨",
+    "Bom dia! Assim como São Judas levou a Palavra de Deus, que nossa transmissão alcance muitos corações hoje. 📡❤️",
+    "Paz e Bem! 'O Senhor é a minha luz e a minha salvação' (Sl 27,1). Que São Judas rogue por nós e por nossa equipe! 🕯️",
+    "Um excelente dia! Que a poderosa intercessão de São Judas Tadeu, o santo das causas impossíveis, te acompanhe em cada detalhe de hoje. 🟢🔴",
+    "Paz de Cristo! Que o Apóstolo São Judas Tadeu nos ajude a transmitir o amor de Deus com alegria e técnica. 😊📸",
+    "Bom dia! Confie suas aflições ao Senhor e peça a intercessão do nosso amado padroeiro, São Judas. 🌿",
+    "Excelente dia de missão! Que São Judas Tadeu abençoe suas mãos, sua visão e seu serviço hoje na transmissão. 🙌",
+    "Que a paz de Jesus preencha seu coração hoje! São Judas Tadeu, rogai por nós e pela nossa paróquia! 🎙️⛪"
 ]
 
 # Agenda telefônica
@@ -69,7 +84,7 @@ def main():
         print(f"Erro no arquivo JSON: {e}")
         exit(1)
     
-    # Sorteia a frase do dia logo no início
+    # Sorteia a frase do dia (escolhe 1 entre as 20)
     frase_sorteada = random.choice(SAUDACOES_BIBLICAS)
     
     # --- PARTE 1: ESCALA DO DIA ---
@@ -86,7 +101,6 @@ def main():
                     telefones_processados.append(telefone)
                     nome_bonito = nome_chave.capitalize()
                     
-                    # Mensagem do WhatsApp com a frase sorteada
                     msg_whatsapp = (
                         f"🌞 *Bom dia, {nome_bonito}!*\n"
                         f"_{frase_sorteada}_\n\n"
@@ -107,7 +121,7 @@ def main():
                 f"Deus abençoe sua missão! 🙏"
             )
             texto_zap = urllib.parse.quote(msg_generica.replace('*', '').replace('_', ''))
-            links_gerados = f"⚠️ [Link Genérico]({f'https://wa.me/?text={texto_zap}'})"
+            links_gerados = f"⚠️[Link Genérico]({f'https://wa.me/?text={texto_zap}'})"
 
         msg_telegram = f"📅 *Resumo da Escala de Hoje:*\n{texto_escala}\n\n👇 *Links Personalizados:*\n{links_gerados}"
         enviar_telegram(msg_telegram)
