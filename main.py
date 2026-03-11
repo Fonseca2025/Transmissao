@@ -10,11 +10,10 @@ import pytz
 TOKEN = os.environ['TELEGRAM_TOKEN']
 CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
-TESTAR_RESUMO_SEMANAL = True 
+TESTAR_RESUMO_SEMANAL = False 
 
 # Lista de 20 Saudações e Versículos (Sorteio Diário)
 SAUDACOES_BIBLICAS =[
-    # --- Versículos e Bênçãos Gerais ---
     "Paz e Bem! 'Este é o dia que o Senhor fez para nós, alegremo-nos e nele exultemos.' (Sl 118,24) ✨",
     "Que o Senhor abençoe profundamente o seu dia! 'Tudo posso naquele que me fortalece.' (Fl 4,13) 💪",
     "Paz e Bem! 'O Senhor te abençoe e te guarde.' (Nm 6,24) 🕊️",
@@ -25,8 +24,6 @@ SAUDACOES_BIBLICAS =[
     "Bom dia na paz do Senhor! 'Alegrem-se na esperança, sejam pacientes na tribulação, perseverem na oração.' (Rm 12,12) ✨",
     "Paz e Bem! 'O Senhor é o meu pastor; de nada terei falta.' (Sl 23,1). Um lindo dia para você! 🛡️",
     "Bom dia! 'Vão pelo mundo todo e preguem o evangelho' (Mc 16,15). Deus abençoe nosso serviço! 🌍",
-    
-    # --- Devoção a São Judas Tadeu (Padroeiro e Transmissão) ---
     "Paz e Bem! Que São Judas Tadeu interceda pela sua vida e pela sua missão no dia de hoje! 🟢🔴",
     "Bom dia! Que a coragem e a fé do glorioso São Judas Tadeu inspirem nossa transmissão de hoje. 🙏",
     "A graça e a paz de Deus estejam com você! Que São Judas ilumine seu caminho e seu serviço no altar e nas câmeras. ✨",
@@ -84,8 +81,8 @@ def main():
         print(f"Erro no arquivo JSON: {e}")
         exit(1)
     
-    # Sorteia a frase do dia (escolhe 1 entre as 20)
-    frase_sorteada = random.choice(SAUDACOES_BIBLICAS)
+    # Sorteia a frase do dia para o envio individual
+    frase_sorteada_individual = random.choice(SAUDACOES_BIBLICAS)
     
     # --- PARTE 1: ESCALA DO DIA ---
     texto_escala = dados.get(data_americana)
@@ -103,7 +100,7 @@ def main():
                     
                     msg_whatsapp = (
                         f"🌞 *Bom dia, {nome_bonito}!*\n"
-                        f"_{frase_sorteada}_\n\n"
+                        f"_{frase_sorteada_individual}_\n\n"
                         f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
                         f"{texto_escala}\n\n"
                         f"Deus abençoe sua missão! 🙏"
@@ -115,7 +112,7 @@ def main():
         if not links_gerados:
             msg_generica = (
                 f"🌞 *Bom dia!*\n"
-                f"_{frase_sorteada}_\n\n"
+                f"_{frase_sorteada_individual}_\n\n"
                 f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
                 f"{texto_escala}\n\n"
                 f"Deus abençoe sua missão! 🙏"
@@ -134,6 +131,11 @@ def main():
         print("🗓️ Gerando resumo da semana...")
         resumo_semana = ""
         
+        # Sorteia uma frase PARA O GRUPO garantindo que seja diferente da frase individual de hoje
+        frase_sorteada_grupo = random.choice(SAUDACOES_BIBLICAS)
+        while frase_sorteada_grupo == frase_sorteada_individual:
+            frase_sorteada_grupo = random.choice(SAUDACOES_BIBLICAS)
+        
         segunda_feira_atual = agora - timedelta(days=agora.weekday())
         
         for i in range(7):
@@ -144,14 +146,16 @@ def main():
             escala_do_dia = dados.get(data_str, "Sem escala definida")
             resumo_semana += f"*{data_br_curta}* - {escala_do_dia}\n\n"
             
+        # Adicionamos a frase sorteada logo no início da mensagem do grupo!
         texto_grupo = (
-            f"Olá equipe! Paz e Bem! 🙏\n\n"
+            f"Olá equipe! 👋\n"
+            f"_{frase_sorteada_grupo}_\n\n"
             f"Confiram a nossa escala de transmissão para esta semana:\n\n"
             f"{resumo_semana}"
-            f"Uma abençoada semana a todos! ✨"
+            f"Uma abençoada semana de missão a todos nós! ✨"
         )
         
-        texto_zap_grupo = urllib.parse.quote(texto_grupo)
+        texto_zap_grupo = urllib.parse.quote(texto_grupo.replace('_', ''))
         link_grupo = f"https://wa.me/?text={texto_zap_grupo}"
         
         msg_telegram_semana = (
