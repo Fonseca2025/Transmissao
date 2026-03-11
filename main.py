@@ -10,6 +10,9 @@ TOKEN = os.environ['TELEGRAM_TOKEN']
 CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
 
+# 🟢 CHAVE DE TESTE (Mude para False quando terminar de testar)
+TESTAR_RESUMO_SEMANAL = True
+
 # Agenda telefônica
 AGENDA = {
     "albert": "5538998557578",
@@ -28,7 +31,6 @@ AGENDA = {
     "gabi": "5538988228118"
 }
 
-# Modifiquei a função para aceitar qualquer texto já formatado
 def enviar_telegram(texto_pronto):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     payload = {
@@ -96,15 +98,16 @@ def main():
     else:
         print(f"Nenhuma escala para hoje ({data_americana}).")
 
-    # --- PARTE 2: RESUMO DA SEMANA (TODA SEGUNDA-FEIRA) ---
-    # O Python entende os dias da semana de 0 a 6 (0 = Segunda, 1 = Terça, 6 = Domingo)
-    if agora.weekday() == 0:
-        print("🗓️ Hoje é Segunda-feira! Gerando resumo da semana...")
+    # --- PARTE 2: RESUMO DA SEMANA (TESTE OU SEGUNDA-FEIRA) ---
+    if agora.weekday() == 0 or TESTAR_RESUMO_SEMANAL:
+        print("🗓️ Gerando resumo da semana...")
         resumo_semana = ""
         
-        # Pega do dia atual (segunda) até +6 dias (domingo)
+        # Volta para a Segunda-feira desta semana, independentemente do dia de hoje
+        segunda_feira_atual = agora - timedelta(days=agora.weekday())
+        
         for i in range(7):
-            dia_calculado = agora + timedelta(days=i)
+            dia_calculado = segunda_feira_atual + timedelta(days=i)
             data_str = dia_calculado.strftime('%Y-%m-%d')
             data_br_curta = dia_calculado.strftime('%d/%m')
             
@@ -120,15 +123,13 @@ def main():
             f"Uma abençoada semana a todos! ✨"
         )
         
-        # Codifica o texto para o link do WhatsApp (MANTENDO os asteriscos para o negrito funcionar no grupo)
+        # Codifica mantendo os asteriscos para o negrito funcionar no grupo do Zap
         texto_zap_grupo = urllib.parse.quote(texto_grupo)
-        
-        # Como é grupo, usamos o link genérico (ele vai abrir o Zap e pedir para você selecionar a conversa)
         link_grupo = f"https://wa.me/?text={texto_zap_grupo}"
         
         msg_telegram_semana = (
             f"📢 *ESCALA DA SEMANA*\n\n"
-            f"Como hoje é segunda-feira, aqui está a escala da semana toda pronta para o grupo!\n\n"
+            f"Aqui está a escala da semana toda pronta para o grupo!\n\n"
             f"👇 *Clique abaixo para mandar no grupo da Transmissão:*\n"
             f"👥[📲 ENVIAR PARA O GRUPO]({link_grupo})"
         )
