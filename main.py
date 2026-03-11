@@ -11,7 +11,7 @@ CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
 
 # 🟢 CHAVE DE TESTE (Mude para False quando terminar de testar)
-TESTAR_RESUMO_SEMANAL = True
+TESTAR_RESUMO_SEMANAL = False
 
 # Agenda telefônica
 AGENDA = {
