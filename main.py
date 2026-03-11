@@ -2,6 +2,7 @@ import json
 import requests
 import os
 import urllib.parse
+import random # Adicionado para o sorteio
 from datetime import datetime, timedelta
 import pytz
 
@@ -9,9 +10,19 @@ import pytz
 TOKEN = os.environ['TELEGRAM_TOKEN']
 CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
+TESTAR_RESUMO_SEMANAL = False # Deixei False para o dia a dia normal
 
-# 🟢 CHAVE DE TESTE (Mude para False quando terminar de testar)
-TESTAR_RESUMO_SEMANAL = False
+# Lista de Saudações e Versículos (O robô vai sortear um por dia)
+SAUDACOES_BIBLICAS =[
+    "Paz e Bem! 'Este é o dia que o Senhor fez para nós, alegremo-nos e nele exultemos.' (Sl 118,24) ✨",
+    "Que o Senhor abençoe profundamente o seu dia! 'Tudo posso naquele que me fortalece.' (Fl 4,13) 💪",
+    "Paz e Bem! 'O Senhor te abençoe e te guarde.' (Nm 6,24) 🕊️",
+    "Um dia abençoado para você! 'Entregue o seu caminho ao Senhor; confie nele, e ele agirá.' (Sl 37,5) 🌿",
+    "Que a alegria do Senhor seja a sua força na missão de hoje! (Ne 8,10) 😊",
+    "Paz de Cristo! 'Deem graças ao Senhor, porque ele é bom; o seu amor dura para sempre.' (Sl 107,1) ❤️",
+    "Bom trabalho hoje! 'Tudo o que fizerem, façam de todo o coração, como para o Senhor.' (Cl 3,23) 🙌",
+    "Paz e Bem! Que São Judas Tadeu interceda pela sua vida e pela sua missão no dia de hoje! 🟢🔴"
+]
 
 # Agenda telefônica
 AGENDA = {
@@ -58,6 +69,9 @@ def main():
         print(f"Erro no arquivo JSON: {e}")
         exit(1)
     
+    # Sorteia a frase do dia logo no início
+    frase_sorteada = random.choice(SAUDACOES_BIBLICAS)
+    
     # --- PARTE 1: ESCALA DO DIA ---
     texto_escala = dados.get(data_americana)
     
@@ -72,24 +86,27 @@ def main():
                     telefones_processados.append(telefone)
                     nome_bonito = nome_chave.capitalize()
                     
+                    # Mensagem do WhatsApp com a frase sorteada
                     msg_whatsapp = (
-                        f"🌞 *Bom dia {nome_bonito}! Paz e Bem.*\n\n"
+                        f"🌞 *Bom dia, {nome_bonito}!*\n"
+                        f"_{frase_sorteada}_\n\n"
                         f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
                         f"{texto_escala}\n\n"
                         f"Deus abençoe sua missão! 🙏"
                     )
-                    texto_zap_codificado = urllib.parse.quote(msg_whatsapp.replace('*', ''))
+                    texto_zap_codificado = urllib.parse.quote(msg_whatsapp.replace('*', '').replace('_', ''))
                     link = f"https://wa.me/{telefone}?text={texto_zap_codificado}"
-                    links_gerados += f"🔗 [Enviar para {nome_bonito}]({link})\n"
+                    links_gerados += f"🔗[Enviar para {nome_bonito}]({link})\n"
 
         if not links_gerados:
             msg_generica = (
-                f"🌞 *Bom dia! Paz e Bem.*\n\n"
+                f"🌞 *Bom dia!*\n"
+                f"_{frase_sorteada}_\n\n"
                 f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
                 f"{texto_escala}\n\n"
                 f"Deus abençoe sua missão! 🙏"
             )
-            texto_zap = urllib.parse.quote(msg_generica.replace('*', ''))
+            texto_zap = urllib.parse.quote(msg_generica.replace('*', '').replace('_', ''))
             links_gerados = f"⚠️ [Link Genérico]({f'https://wa.me/?text={texto_zap}'})"
 
         msg_telegram = f"📅 *Resumo da Escala de Hoje:*\n{texto_escala}\n\n👇 *Links Personalizados:*\n{links_gerados}"
@@ -98,12 +115,11 @@ def main():
     else:
         print(f"Nenhuma escala para hoje ({data_americana}).")
 
-    # --- PARTE 2: RESUMO DA SEMANA (TESTE OU SEGUNDA-FEIRA) ---
+    # --- PARTE 2: RESUMO DA SEMANA (SEGUNDA-FEIRA) ---
     if agora.weekday() == 0 or TESTAR_RESUMO_SEMANAL:
         print("🗓️ Gerando resumo da semana...")
         resumo_semana = ""
         
-        # Volta para a Segunda-feira desta semana, independentemente do dia de hoje
         segunda_feira_atual = agora - timedelta(days=agora.weekday())
         
         for i in range(7):
@@ -112,8 +128,6 @@ def main():
             data_br_curta = dia_calculado.strftime('%d/%m')
             
             escala_do_dia = dados.get(data_str, "Sem escala definida")
-            
-            # Adiciona asteriscos para o WhatsApp formatar a data em negrito
             resumo_semana += f"*{data_br_curta}* - {escala_do_dia}\n\n"
             
         texto_grupo = (
@@ -123,7 +137,6 @@ def main():
             f"Uma abençoada semana a todos! ✨"
         )
         
-        # Codifica mantendo os asteriscos para o negrito funcionar no grupo do Zap
         texto_zap_grupo = urllib.parse.quote(texto_grupo)
         link_grupo = f"https://wa.me/?text={texto_zap_grupo}"
         
