@@ -2,7 +2,7 @@ import json
 import requests
 import os
 import urllib.parse
-from datetime import datetime, timedelta # Adicionei o timedelta aqui
+from datetime import datetime, timedelta
 import pytz
 
 # --- CONFIGURAÇÕES ---
@@ -28,22 +28,15 @@ AGENDA = {
     "gabi": "5538988228118"
 }
 
-def enviar_telegram(texto_mensagem, botoes_links=None):
+# Modifiquei a função para aceitar qualquer texto já formatado
+def enviar_telegram(texto_pronto):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    
-    # Se tiver botões (links), adiciona no texto. Se não, manda só o texto (para o alerta).
-    if botoes_links:
-        texto_final = f"📅 *Resumo da Escala de Hoje:*\n{texto_mensagem}\n\n👇 *Links Personalizados:*\n{botoes_links}"
-    else:
-        texto_final = texto_mensagem # Caso seja apenas o alerta de fim de escala
-
     payload = {
         "chat_id": CHAT_ID,
-        "text": texto_final,
+        "text": texto_pronto,
         "parse_mode": "Markdown",
         "disable_web_page_preview": True
     }
-    
     response = requests.post(url, json=payload)
     if response.status_code != 200:
         print(f"❌ Erro ao enviar: {response.text}")
@@ -56,7 +49,6 @@ def main():
     
     print(f"📅 Processando dia: {data_americana}")
 
-    # 1. Carregar Escala
     try:
         with open(ARQUIVO_ESCALA, 'r', encoding='utf-8') as f:
             dados = json.load(f)
@@ -70,7 +62,7 @@ def main():
     if texto_escala:
         texto_escala_lower = texto_escala.lower()
         links_gerados = ""
-        telefones_processados = []
+        telefones_processados =[]
 
         for nome_chave, telefone in AGENDA.items():
             if nome_chave in texto_escala_lower:
@@ -78,7 +70,6 @@ def main():
                     telefones_processados.append(telefone)
                     nome_bonito = nome_chave.capitalize()
                     
-                    # Mensagem personalizada para o WhatsApp
                     msg_whatsapp = (
                         f"🌞 *Bom dia {nome_bonito}! Paz e Bem.*\n\n"
                         f"Passando para lembrar da escala de transmissão de hoje ({data_br}):\n\n"
@@ -99,25 +90,63 @@ def main():
             texto_zap = urllib.parse.quote(msg_generica.replace('*', ''))
             links_gerados = f"⚠️ [Link Genérico]({f'https://wa.me/?text={texto_zap}'})"
 
-        enviar_telegram(texto_escala, links_gerados)
+        msg_telegram = f"📅 *Resumo da Escala de Hoje:*\n{texto_escala}\n\n👇 *Links Personalizados:*\n{links_gerados}"
+        enviar_telegram(msg_telegram)
         print("✅ Escala do dia enviada.")
     else:
         print(f"Nenhuma escala para hoje ({data_americana}).")
 
-    # --- PARTE 2: ALERTA DE FIM DE ESCALA (NOVO!) ---
-    # Verifica daqui a 5 dias
+    # --- PARTE 2: RESUMO DA SEMANA (TODA SEGUNDA-FEIRA) ---
+    # O Python entende os dias da semana de 0 a 6 (0 = Segunda, 1 = Terça, 6 = Domingo)
+    if agora.weekday() == 0:
+        print("🗓️ Hoje é Segunda-feira! Gerando resumo da semana...")
+        resumo_semana = ""
+        
+        # Pega do dia atual (segunda) até +6 dias (domingo)
+        for i in range(7):
+            dia_calculado = agora + timedelta(days=i)
+            data_str = dia_calculado.strftime('%Y-%m-%d')
+            data_br_curta = dia_calculado.strftime('%d/%m')
+            
+            escala_do_dia = dados.get(data_str, "Sem escala definida")
+            
+            # Adiciona asteriscos para o WhatsApp formatar a data em negrito
+            resumo_semana += f"*{data_br_curta}* - {escala_do_dia}\n\n"
+            
+        texto_grupo = (
+            f"Olá equipe! Paz e Bem! 🙏\n\n"
+            f"Confiram a nossa escala de transmissão para esta semana:\n\n"
+            f"{resumo_semana}"
+            f"Uma abençoada semana a todos! ✨"
+        )
+        
+        # Codifica o texto para o link do WhatsApp (MANTENDO os asteriscos para o negrito funcionar no grupo)
+        texto_zap_grupo = urllib.parse.quote(texto_grupo)
+        
+        # Como é grupo, usamos o link genérico (ele vai abrir o Zap e pedir para você selecionar a conversa)
+        link_grupo = f"https://wa.me/?text={texto_zap_grupo}"
+        
+        msg_telegram_semana = (
+            f"📢 *ESCALA DA SEMANA*\n\n"
+            f"Como hoje é segunda-feira, aqui está a escala da semana toda pronta para o grupo!\n\n"
+            f"👇 *Clique abaixo para mandar no grupo da Transmissão:*\n"
+            f"👥[📲 ENVIAR PARA O GRUPO]({link_grupo})"
+        )
+        enviar_telegram(msg_telegram_semana)
+        print("✅ Resumo da semana enviado.")
+
+    # --- PARTE 3: ALERTA DE FIM DE ESCALA ---
     daqui_5_dias = (agora + timedelta(days=5)).strftime('%Y-%m-%d')
     daqui_5_dias_br = (agora + timedelta(days=5)).strftime('%d/%m/%Y')
     
-    # Se NÃO tiver dados para daqui a 5 dias, manda o alerta
     if not dados.get(daqui_5_dias):
         print(f"⚠️ Alerta: Não há escala para {daqui_5_dias}")
         aviso = (
             f"🚨 *ATENÇÃO: A ESCALA ESTÁ ACABANDO!* 🚨\n\n"
             f"O sistema verificou que não há escala cadastrada para daqui a 5 dias ({daqui_5_dias_br}).\n\n"
-            f"Por favor, acesse o GitHub e atualize o arquivo `escala.json` com o próximo mês para o robô não parar."
+            f"Por favor, acesse o GitHub e atualize o arquivo `escala.json`."
         )
-        enviar_telegram(aviso, None) # Manda sem botões, só o aviso
+        enviar_telegram(aviso)
 
 if __name__ == "__main__":
     main()
