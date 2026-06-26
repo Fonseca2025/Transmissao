@@ -2,8 +2,8 @@ name: Notificação de Sábado (Véspera de Domingo)
 
 on:
   schedule:
-    # 00:12 UTC de Domingo = 21:12 Horário de Brasília no Sábado 
-    - cron: '12 0 * * 0'
+    # 18:03 UTC de Sábado (dia 6) = 15:03 Horário de Brasília
+    - cron: '3 18 * * 6'
   workflow_dispatch: # Permite rodar manualmente no botão para testes
 
 jobs:
