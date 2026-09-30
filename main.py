@@ -12,28 +12,18 @@ CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
 TESTAR_RESUMO_SEMANAL = False 
 
-# Lista de 20 Saudações e Versículos
+# 🟢🔴 MENSAGENS ESPECIAIS: MÊS DE SÃO JUDAS TADEU 🔴🟢
 SAUDACOES_BIBLICAS =[
-    "Paz e Bem! 'Este é o dia que o Senhor fez para nós, alegremo-nos e nele exultemos.' (Sl 118,24) ✨",
-    "Que o Senhor abençoe profundamente o seu dia! 'Tudo posso naquele que me fortalece.' (Fl 4,13) 💪",
-    "Paz e Bem! 'O Senhor te abençoe e te guarde.' (Nm 6,24) 🕊️",
-    "Um dia abençoado para você! 'Entregue o seu caminho ao Senhor; confie nele, e ele agirá.' (Sl 37,5) 🌿",
-    "Que a alegria do Senhor seja a sua força na missão! (Ne 8,10) 😊",
-    "Paz de Cristo! 'Deem graças ao Senhor, porque ele é bom; o seu amor dura para sempre.' (Sl 107,1) ❤️",
-    "Bom trabalho! 'Tudo o que fizerem, façam de todo o coração, como para o Senhor.' (Cl 3,23) 🙌",
-    "A paz do Senhor! 'Alegrem-se na esperança, sejam pacientes na tribulação, perseverem na oração.' (Rm 12,12) ✨",
-    "Paz e Bem! 'O Senhor é o meu pastor; de nada terei falta.' (Sl 23,1). 🛡️",
-    "Abençoada missão! 'Vão pelo mundo todo e preguem o evangelho' (Mc 16,15). 🌍",
-    "Paz e Bem! Que São Judas Tadeu interceda pela sua vida e pela sua missão! 🟢🔴",
-    "Que a coragem e a fé do glorioso São Judas Tadeu inspirem nossa transmissão. 🙏",
-    "A graça e a paz de Deus estejam com você! Que São Judas ilumine seu caminho e seu serviço. ✨",
-    "Assim como São Judas levou a Palavra de Deus, que nossa transmissão alcance muitos corações. 📡❤️",
-    "Paz e Bem! 'O Senhor é a minha luz e a minha salvação' (Sl 27,1). Que São Judas rogue por nós e por nossa equipe! 🕯️",
-    "Que a poderosa intercessão de São Judas Tadeu, o santo das causas impossíveis, te acompanhe em cada detalhe. 🟢🔴",
-    "Paz de Cristo! Que o Apóstolo São Judas Tadeu nos ajude a transmitir o amor de Deus com alegria e técnica. 😊📸",
-    "Confie suas aflições ao Senhor e peça a intercessão do nosso amado padroeiro, São Judas. 🌿",
-    "Excelente missão! Que São Judas Tadeu abençoe suas mãos, sua visão e seu serviço na transmissão. 🙌",
-    "Que a paz de Jesus preencha seu coração! São Judas Tadeu, rogai por nós e pela nossa paróquia! 🎙️⛪"
+    "Bom dia! Mês de São Judas Tadeu! Que nosso padroeiro abençoe nossa missão de levar a novena e as missas para tantos lares! 🟢🔴",
+    "Paz e Bem! Outubro chegou, tempo de graça. São Judas Tadeu, rogai por nós e pela nossa transmissão hoje! 🙏",
+    "Um dia abençoado! Que a força e o zelo apostólico de São Judas nos inspirem neste mês festivo. 🎉",
+    "Bom trabalho! Estamos no mês da nossa festa! Que cada transmissão toque o coração dos devotos. 📡❤️",
+    "Paz de Cristo! A alegria do nosso padroeiro seja a nossa força. Uma excelente transmissão para você hoje! ⛪✨",
+    "Bom dia! Que as graças da festa de São Judas se derramem sobre você e sua família hoje. Boa missão! 🌿",
+    "Mês de festa, mês de trabalho, mas com alegria redobrada! Que São Judas te dê força e sabedoria nas câmeras hoje! 🎥💪",
+    "Paz e Bem! 'Rogai por nós, glorioso Apóstolo São Judas Tadeu'. Uma transmissão cheia do Espírito Santo para você! 🕊️",
+    "Tempo de bênçãos! Que cada imagem transmitida aproxime mais pessoas de Jesus. São Judas Tadeu, rogai por nós! 🙏",
+    "Um excelente dia! O padroeiro das causas impossíveis caminha conosco. Mãos à obra e boa transmissão! 🟢🔴"
 ]
 
 AGENDA = {
@@ -67,7 +57,7 @@ def main():
     fuso_brasil = pytz.timezone('America/Sao_Paulo')
     agora = datetime.now(fuso_brasil)
     
-    # Verifica se é o Lembrete de Véspera (Ex: Sábado à noite)
+    # Verifica se é o Lembrete de Véspera (Sábado à tarde para o Domingo)
     modo_vespera = os.environ.get('MODO_VESPERA') == 'true'
     
     if modo_vespera:
@@ -104,7 +94,6 @@ def main():
                     telefones_processados.append(telefone)
                     nome_bonito = nome_chave.capitalize()
                     
-                    # 🔔 A MÁGICA ESTÁ AQUI: Mensagem do WhatsApp com Gatilho de Confirmação!
                     msg_whatsapp = (
                         f"{saudacao_inicial}, {nome_bonito}!*\n"
                         f"_{frase_sorteada_individual}_\n\n"
@@ -151,7 +140,7 @@ def main():
                 
             texto_grupo = (
                 f"Olá equipe! 👋\n_{frase_sorteada_grupo}_\n\n"
-                f"Confiram a nossa escala de transmissão para esta semana:\n\n{resumo_semana}"
+                f"Confiram a nossa escala de transmissão para esta semana festiva:\n\n{resumo_semana}"
                 f"Uma abençoada semana de missão a todos nós! ✨"
             )
             texto_zap_grupo = urllib.parse.quote(texto_grupo.replace('_', ''))
