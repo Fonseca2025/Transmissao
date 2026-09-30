@@ -12,7 +12,7 @@ CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 ARQUIVO_ESCALA = 'escala.json'
 TESTAR_RESUMO_SEMANAL = False 
 
-# 🟢🔴 MENSAGENS ESPECIAIS: MÊS DE SÃO JUDAS TADEU 🔴🟢
+# 🟢🔴 30 MENSAGENS ESPECIAIS: MÊS DE SÃO JUDAS TADEU E NOVENA 🔴🟢
 SAUDACOES_BIBLICAS =[
     "Bom dia! Mês de São Judas Tadeu! Que nosso padroeiro abençoe nossa missão de levar a novena e as missas para tantos lares! 🟢🔴",
     "Paz e Bem! Outubro chegou, tempo de graça. São Judas Tadeu, rogai por nós e pela nossa transmissão hoje! 🙏",
@@ -23,7 +23,27 @@ SAUDACOES_BIBLICAS =[
     "Mês de festa, mês de trabalho, mas com alegria redobrada! Que São Judas te dê força e sabedoria nas câmeras hoje! 🎥💪",
     "Paz e Bem! 'Rogai por nós, glorioso Apóstolo São Judas Tadeu'. Uma transmissão cheia do Espírito Santo para você! 🕊️",
     "Tempo de bênçãos! Que cada imagem transmitida aproxime mais pessoas de Jesus. São Judas Tadeu, rogai por nós! 🙏",
-    "Um excelente dia! O padroeiro das causas impossíveis caminha conosco. Mãos à obra e boa transmissão! 🟢🔴"
+    "Um excelente dia! O padroeiro das causas impossíveis caminha conosco. Mãos à obra e boa transmissão! 🟢🔴",
+    "Bom dia! Nossa lente é a janela para muitos fiéis neste mês de outubro. Que São Judas abençoe seu olhar hoje! 📸✨",
+    "Paz e Bem! Que o fogo do Espírito Santo que desceu sobre os apóstolos incendeie nossa equipe hoje. Bom trabalho! 🔥",
+    "Mês de São Judas Tadeu! Que através dos cabos e câmeras, a graça de Deus alcance os doentes e impossibilitados. 💚❤️",
+    "Bom dia, apóstolo da comunicação! Que São Judas Tadeu te proteja e interceda por cada detalhe da nossa transmissão. 🙏",
+    "A paz do Senhor! Evangelizar pelas telas é a nossa vocação. Um excelente serviço no altar do Senhor hoje! ⛪💻",
+    "Neste mês abençoado, que o manto verde e vermelho de São Judas te cubra de paz e saúde. Boa missão! 🟢🔴",
+    "Que alegria servir no mês do nosso padroeiro! Que sua dedicação hoje seja transformada em graças na sua vida. ✨",
+    "Bom dia! São Judas levou a Palavra a lugares distantes; hoje, nós a levamos pelas redes. Que ele rogue por nós! 🌐🕊️",
+    "Paz e Bem! Que a paz de Cristo guie suas mãos e seu coração na transmissão de hoje. Viva São Judas Tadeu! 🎉",
+    "Deus abençoe seu dia! Que o Senhor te fortaleça para essa missão tão linda que é levar a Santa Missa aos lares. 🏡❤️",
+    "Bom trabalho hoje! Que São Judas Tadeu, o santo da esperança, renove suas forças e te dê muita sabedoria técnica. 🛠️🙏",
+    "Um dia de muita graça! Cada clique, cada foco e cada ajuste de áudio é uma oração a Deus. Boa missão! 🎧🎥",
+    "Alegrai-vos no Senhor! Estamos no mês da nossa maior festa. Que São Judas abençoe você e toda a equipe! 🟢🔴",
+    "Paz de Cristo! Transmitir a Missa é um ato de amor. Que o glorioso São Judas Tadeu te acompanhe hoje e sempre. ❤️",
+    "Bom dia! Que a Palavra de Deus corra veloz pelas nossas redes hoje. São Judas Tadeu, rogai por nós! 📲✨",
+    "Mês do nosso padroeiro! Que o seu serviço na transmissão seja semente de milagres na vida de quem assiste. 🌾🙏",
+    "Paz e Bem! Confie o seu dia a São Judas Tadeu. Que ele abra os caminhos para uma transmissão perfeita! 🛤️💚",
+    "Bom dia! Que o amor de Cristo nos una como equipe neste mês de festa. Um excelente trabalho na Igreja hoje! ⛪💪",
+    "Deus te abençoe! Você é os olhos e ouvidos de quem não pode vir à Igreja. Que São Judas te dê muita luz! 💡🕊️",
+    "Viva São Judas Tadeu! Que a alegria de servir inunde o seu coração no dia de hoje. Um trabalho abençoado para você! 🎉🟢🔴"
 ]
 
 AGENDA = {
